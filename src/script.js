@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/Addons.js";
 import { RenderPass } from "three/examples/jsm/Addons.js";
 import { DotScreenPass } from "three/examples/jsm/Addons.js";
+import { GlitchPass } from "three/examples/jsm/Addons.js";
 import GUI from "lil-gui";
 
 /**
@@ -145,6 +146,11 @@ effectComposser.addPass(renderPass);
 const dotScreenPass = new DotScreenPass();
 dotScreenPass.enabled = false;
 effectComposser.addPass(dotScreenPass);
+
+const glitchPass = new GlitchPass();
+glitchPass.goWild = false;
+glitchPass.enabled = false;
+effectComposser.addPass(glitchPass);
 
 /**
  * Animate
