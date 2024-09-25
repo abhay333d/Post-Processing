@@ -5,6 +5,8 @@ import { EffectComposer } from "three/examples/jsm/Addons.js";
 import { RenderPass } from "three/examples/jsm/Addons.js";
 import { DotScreenPass } from "three/examples/jsm/Addons.js";
 import { GlitchPass } from "three/examples/jsm/Addons.js";
+import { ShaderPass } from "three/examples/jsm/Addons.js";
+import { RGBShiftShader } from "three/examples/jsm/Addons.js";
 import GUI from "lil-gui";
 
 /**
@@ -151,6 +153,9 @@ const glitchPass = new GlitchPass();
 glitchPass.goWild = false;
 glitchPass.enabled = false;
 effectComposser.addPass(glitchPass);
+
+const rgbShiftPass = new ShaderPass(RGBShiftShader);
+effectComposser.addPass(rgbShiftPass);
 
 /**
  * Animate
