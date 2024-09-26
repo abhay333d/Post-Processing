@@ -103,6 +103,10 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  //update effect composer
+  effectComposser.setSize(sizes.width, sizes.height);
+  effectComposser.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
 /**
@@ -155,17 +159,17 @@ effectComposser.addPass(dotScreenPass);
 //glitchPass
 const glitchPass = new GlitchPass();
 glitchPass.goWild = false;
-glitchPass.enabled = false;
+glitchPass.enabled = true;
 effectComposser.addPass(glitchPass);
 
 //rgbShiftPass
 const rgbShiftPass = new ShaderPass(RGBShiftShader);
+rgbShiftPass.enabled = false;
 effectComposser.addPass(rgbShiftPass);
 
 //Gama correction Pass
-const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader)
+const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 effectComposser.addPass(gamaCorrectionPass);
-
 
 /**
  * Animate
