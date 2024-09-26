@@ -7,6 +7,7 @@ import { DotScreenPass } from "three/examples/jsm/Addons.js";
 import { GlitchPass } from "three/examples/jsm/Addons.js";
 import { ShaderPass } from "three/examples/jsm/Addons.js";
 import { RGBShiftShader } from "three/examples/jsm/Addons.js";
+import { GammaCorrectionShader } from "three/examples/jsm/Addons.js";
 import GUI from "lil-gui";
 
 /**
@@ -142,20 +143,29 @@ const effectComposser = new EffectComposer(renderer);
 effectComposser.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 effectComposser.setSize(sizes.width, sizes.height);
 
+//renderPass
 const renderPass = new RenderPass(scene, camera);
 effectComposser.addPass(renderPass);
 
+//dotScreenPass
 const dotScreenPass = new DotScreenPass();
 dotScreenPass.enabled = false;
 effectComposser.addPass(dotScreenPass);
 
+//glitchPass
 const glitchPass = new GlitchPass();
 glitchPass.goWild = false;
 glitchPass.enabled = false;
 effectComposser.addPass(glitchPass);
 
+//rgbShiftPass
 const rgbShiftPass = new ShaderPass(RGBShiftShader);
 effectComposser.addPass(rgbShiftPass);
+
+//Gama correction Pass
+const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader)
+effectComposser.addPass(gamaCorrectionPass);
+
 
 /**
  * Animate
