@@ -8,6 +8,7 @@ import { GlitchPass } from "three/examples/jsm/Addons.js";
 import { ShaderPass } from "three/examples/jsm/Addons.js";
 import { RGBShiftShader } from "three/examples/jsm/Addons.js";
 import { GammaCorrectionShader } from "three/examples/jsm/Addons.js";
+import { SMAAPass } from "three/examples/jsm/Addons.js";
 import GUI from "lil-gui";
 
 /**
@@ -143,7 +144,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /**
  * Post Processing
  */
-const effectComposser = new EffectComposer(renderer);
+
+//Render Target
+const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
+  samples: renderer.getPixelRatio() === 1 ? 2 : 0,
+});
+
+const effectComposser = new EffectComposer(renderer, renderTarget);
 effectComposser.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 effectComposser.setSize(sizes.width, sizes.height);
 
@@ -170,6 +177,12 @@ effectComposser.addPass(rgbShiftPass);
 //Gama correction Pass
 const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 effectComposser.addPass(gamaCorrectionPass);
+
+//SMAA Pass
+if (renderer.getPixelRatio() === 1 && !renderer.capabilities.isWebGL2) {
+  const smaaPass = new SMAAPass();
+  effectComposser.addPass(smaaPass);
+}
 
 /**
  * Animate
