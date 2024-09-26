@@ -9,6 +9,7 @@ import { ShaderPass } from "three/examples/jsm/Addons.js";
 import { RGBShiftShader } from "three/examples/jsm/Addons.js";
 import { GammaCorrectionShader } from "three/examples/jsm/Addons.js";
 import { SMAAPass } from "three/examples/jsm/Addons.js";
+import { UnrealBloomPass } from "three/examples/jsm/Addons.js";
 import GUI from "lil-gui";
 
 /**
@@ -166,13 +167,30 @@ effectComposser.addPass(dotScreenPass);
 //glitchPass
 const glitchPass = new GlitchPass();
 glitchPass.goWild = false;
-glitchPass.enabled = true;
+glitchPass.enabled = false;
 effectComposser.addPass(glitchPass);
 
 //rgbShiftPass
 const rgbShiftPass = new ShaderPass(RGBShiftShader);
 rgbShiftPass.enabled = false;
 effectComposser.addPass(rgbShiftPass);
+
+//Unreal Bloom Pass
+const unrealBloomPass = new UnrealBloomPass();
+unrealBloomPass.enabled = true;
+effectComposser.addPass(unrealBloomPass);
+unrealBloomPass.strength = 0.3;
+unrealBloomPass.radius = 1;
+unrealBloomPass.threshold = 0.6;
+
+gui.add(dotScreenPass, "enabled").name("DotScreenPass");
+gui.add(glitchPass, "enabled").name("GlitchPass");
+gui.add(glitchPass, "goWild").name("GlitchPass-goWild");
+gui.add(rgbShiftPass, "enabled").name("rgbShiftPass");
+gui.add(unrealBloomPass, "enabled").name("UnrealBloomPass");
+gui.add(unrealBloomPass, "strength").min(0).max(2).step(0.001);
+gui.add(unrealBloomPass, "radius").min(0).max(2).step(0.001);
+gui.add(unrealBloomPass, "threshold").min(0).max(2).step(0.001);
 
 //Gama correction Pass
 const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader);
