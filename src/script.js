@@ -188,9 +188,9 @@ gui.add(glitchPass, "enabled").name("GlitchPass");
 gui.add(glitchPass, "goWild").name("GlitchPass-goWild");
 gui.add(rgbShiftPass, "enabled").name("rgbShiftPass");
 gui.add(unrealBloomPass, "enabled").name("UnrealBloomPass");
-gui.add(unrealBloomPass, "strength").min(0).max(2).step(0.001);
-gui.add(unrealBloomPass, "radius").min(0).max(2).step(0.001);
-gui.add(unrealBloomPass, "threshold").min(0).max(2).step(0.001);
+gui.add(unrealBloomPass, "strength").min(0).max(2).step(0.001).name("BloomStrength");
+gui.add(unrealBloomPass, "radius").min(0).max(2).step(0.001).name("BloomRadius");
+gui.add(unrealBloomPass, "threshold").min(0).max(2).step(0.001).name("BloomThreshold");
 
 //Tint Pass
 const TintShader = {
@@ -225,8 +225,84 @@ tintPass.material.uniforms.uTint.value = new THREE.Vector3();
 effectComposser.addPass(tintPass);
 
 gui.add(tintPass.material.uniforms.uTint.value, "x", -1, 1, 0.001).name("red");
-gui.add(tintPass.material.uniforms.uTint.value, "y", -1, 1, 0.001).name("green");
+gui
+  .add(tintPass.material.uniforms.uTint.value, "y", -1, 1, 0.001)
+  .name("green");
 gui.add(tintPass.material.uniforms.uTint.value, "z", -1, 1, 0.001).name("blue");
+
+//Drunk Displacement Pass
+const DisplacementShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime: { value: null },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main()
+{
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vUv = uv;
+}
+  `,
+  fragmentShader: `
+  uniform sampler2D tDiffuse;
+  uniform float uTime;
+
+  varying vec2 vUv;
+
+  void main()
+{
+  vec2 newUv = vec2 (
+    vUv.x,
+    vUv.y + sin(vUv.x * 10.0 + uTime) * 0.1
+  );
+  vec4 color = texture2D( tDiffuse, newUv );
+  gl_FragColor = color;
+}
+  `,
+};
+const displacementPass = new ShaderPass(DisplacementShader);
+displacementPass.material.uniforms.uTime.value = 0;
+displacementPass.enabled = false;
+effectComposser.addPass(displacementPass);
+
+gui.add(displacementPass, "enabled").name("DrunkDispPass");
+
+//textured Displacement Pass
+const TextureDisplacementShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uNormalMap: { value: null },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main()
+{
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vUv = uv;
+}
+  `,
+  fragmentShader: `
+  uniform sampler2D tDiffuse;
+  uniform sampler2D uNormalMap;
+
+  varying vec2 vUv;
+
+  void main()
+{
+  vec3 normalColor = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;
+  vec2 newUv = vUv + normalColor.xy * 0.1;
+  vec4 color = texture2D( tDiffuse, newUv );
+  gl_FragColor = color;
+}
+  `,
+};
+const textureDisplacementPass = new ShaderPass(TextureDisplacementShader);
+textureDisplacementPass.material.uniforms.uNormalMap.value = textureLoader.load(
+  "./textures/interfaceNormalMap.png"
+);
+// textureDisplacementPass.enabled = false;
+effectComposser.addPass(textureDisplacementPass);
 
 //Gama correction Pass
 const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader);
@@ -245,6 +321,9 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  //Update displacement pass
+  displacementPass.material.uniforms.uTime.value = elapsedTime;
 
   // Update controls
   controls.update();
