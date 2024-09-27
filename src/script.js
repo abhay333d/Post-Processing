@@ -188,9 +188,24 @@ gui.add(glitchPass, "enabled").name("GlitchPass");
 gui.add(glitchPass, "goWild").name("GlitchPass-goWild");
 gui.add(rgbShiftPass, "enabled").name("rgbShiftPass");
 gui.add(unrealBloomPass, "enabled").name("UnrealBloomPass");
-gui.add(unrealBloomPass, "strength").min(0).max(2).step(0.001).name("BloomStrength");
-gui.add(unrealBloomPass, "radius").min(0).max(2).step(0.001).name("BloomRadius");
-gui.add(unrealBloomPass, "threshold").min(0).max(2).step(0.001).name("BloomThreshold");
+gui
+  .add(unrealBloomPass, "strength")
+  .min(0)
+  .max(2)
+  .step(0.001)
+  .name("BloomStrength");
+gui
+  .add(unrealBloomPass, "radius")
+  .min(0)
+  .max(2)
+  .step(0.001)
+  .name("BloomRadius");
+gui
+  .add(unrealBloomPass, "threshold")
+  .min(0)
+  .max(2)
+  .step(0.001)
+  .name("BloomThreshold");
 
 //Tint Pass
 const TintShader = {
@@ -293,6 +308,10 @@ const TextureDisplacementShader = {
   vec3 normalColor = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;
   vec2 newUv = vUv + normalColor.xy * 0.1;
   vec4 color = texture2D( tDiffuse, newUv );
+
+  vec3 lightDirection = normalize(vec3(-1.0, 1.0, 0.0));
+  float lightness = clamp(dot(normalColor, lightDirection), 0.0, 1.0);
+  color.rgb += lightness * 2.0; 
   gl_FragColor = color;
 }
   `,
@@ -301,8 +320,10 @@ const textureDisplacementPass = new ShaderPass(TextureDisplacementShader);
 textureDisplacementPass.material.uniforms.uNormalMap.value = textureLoader.load(
   "./textures/interfaceNormalMap.png"
 );
-// textureDisplacementPass.enabled = false;
+textureDisplacementPass.enabled = false;
 effectComposser.addPass(textureDisplacementPass);
+
+gui.add(textureDisplacementPass, "enabled").name("textureDisplacementPass");
 
 //Gama correction Pass
 const gamaCorrectionPass = new ShaderPass(GammaCorrectionShader);
